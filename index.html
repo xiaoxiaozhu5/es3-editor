@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EasySave3 Editor</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.41.0/codemirror.css"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.41.0/codemirror.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.41.0/mode/htmlmixed/htmlmixed.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.41.0/mode/xml/xml.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.41.0/mode/javascript/javascript.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.41.0/mode/css/css.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
+        <style>
+            body {
+                background-color: #1f2937;
+                font-family: Arial, sans-serif;
+                color: #ffffff;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            }
+
+            .container {
+                background-color: #2d3748;
+                padding: 20px;
+                border-radius: 8px;
+                width: 400px;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            input[type="text"] {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: none;
+                border-radius: 4px;
+            }
+
+            .info {
+                font-size: 14px;
+                margin-bottom: 20px;
+            }
+
+            .info p {
+                margin: 5px 0;
+            }
+
+            .section {
+                margin-bottom: 20px;
+            }
+
+            .section h2 {
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+
+            .section hr {
+                border: 0.5px solid #4a5568;
+                margin-bottom: 10px;
+            }
+
+            .file-input {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .file-input input[type="file"] {
+                display: none;
+            }
+
+            .file-input label {
+                background-color: #4a5568;
+                padding: 10px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-right: 10px;
+            }
+
+            .file-name {
+                font-size: 14px;
+                color: #a0aec0;
+            }
+
+            .button {
+                width: 100%;
+                padding: 10px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-bottom: 10px;
+            }
+
+            .button-primary {
+                background-color: #38b2ac;
+                color: #ffffff;
+            }
+
+            .button-secondary {
+                background-color: #718096;
+                color: #ffffff;
+            }
+
+            .button .icon {
+                margin-right: 5px;
+            }
+
+            .note {
+                font-size: 12px;
+                color: #a0aec0;
+            }
+
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0, 0, 0, 0.5);
+                justify-content: center;
+                align-items: center;
+            }
+
+            .modal-content {
+                background-color: #2d3748;
+                padding: 20px;
+                border-radius: 8px;
+                width: 90%;
+                /* max-width: 1200px; */
+                max-width: 100%;
+                /* display: flex; */
+            }
+
+            .close {
+                color: #a0aec0;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+            }
+
+            .close:hover, .close:focus {
+                color: #ffffff;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            .editor-container {
+                display: flex;
+                width: 100%;
+                height: 100%;
+            }
+
+            .editor {
+                width: 100%;
+                height: 100%;
+                background-color: #1a202c;
+                color: #ffffff;
+                border: none;
+                border-radius: 4px;
+                padding: 10px;
+                font-family: monospace;
+            }
+
+            .editor-left, .editor-right {
+                width: 50%;
+                height: 100%;
+                overflow: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>EasySave3 Editor</h1>
+            <input type="text" placeholder="a1bc2d3fghi4..." id="inputPassword" required>
+            <div class="info">
+                <p>
+                    Use <strong>t36gref9u84y7f43g</strong>
+                    for Phasmophobia
+
+                </p>
+                <p>
+                    Use <strong>lcslime14a5</strong>
+                    for Lethal Company
+
+                </p>
+                <p>
+                    Use <strong>6tr cr$#@#T#GFTVn</strong>
+                    for Strike Force Heroes
+
+                </p>
+                <p>
+                    Use <strong>browar23</strong>
+                    for Brewpub Simulator
+
+                </p>
+                <p>
+                    Use <strong>#hidea0417</strong>
+                    for Cats&ampSoup
+
+                </p>
+            </div>
+            <div class="section">
+                <h2>Decryption</h2>
+                <hr>
+                <div class="file-input">
+                    <label for="decryption-file">选择文件</label>
+                    <input type="file" id="decryption-file" name="decryption-file">
+                    <span class="file-name">未选择任何文件</span>
+                </div>
+                <button class="button button-primary" id="open-editor-btn">
+                    <span class="icon">&#128221;</span>
+                    Open editor
+                </button>
+                <button class="button button-primary" id="download_decrypt_file_btn">
+                    <span class="icon">&#128190;</span>
+                    Download decrypted save file
+                </button>
+                <div class="note">
+                    <p>If you are getting no errors after pressing the button and the decrypted file starts downloading, it means that the decryption was successful. For some games, the decrypted save file might look like it's still encrypted, but it can actually just be GZip compression. So, if your decrypted file still looks like it's encrypted, please try decompressing it with GZip.</p>
+                </div>
+            </div>
+            <div class="section">
+                <h2>Encryption</h2>
+                <hr>
+                <div class="file-input">
+                    <label for="encryption-file">选择文件</label>
+                    <input type="file" id="encryption-file" name="encryption-file">
+                    <span class="file-name">未选择任何文件</span>
+                </div>
+                <button class="button button-primary" id="download_encrypt_file_btn">
+                    <span class="icon">&#128190;</span>
+                    Download encrypted save file
+
+                </button>
+                <div class="note">
+                    <p>If you had to decompress the save file after decryption, you will have to recompress it again before uploading it here and encrypt it again.</p>
+                </div>
+            </div>
+        </div>
+        <!-- Modal for Editor -->
+        <div id="editor-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="close-modal">&times;</span>
+                <h2>Editor</h2>
+                <div class="editor-container">
+                    <div class="editor-left">
+                        <textarea class="editor" id="editor-left"></textarea>
+                    </div>
+                    <div class="editor-right">
+                        <textarea class="editor" id="editor-right"></textarea>
+                    </div>
+                </div>
+                <button class="button button-primary" id="cmp-editor-btn">Compare</button>
+            </div>
+        </div>
+        <script>
+            let decrypted_game_data = '';
+            let encrypted_game_data;
+            document.getElementById('decryption-file').addEventListener('change', function() {
+                var file = this.files[0];
+                var fileName = this.files[0] ? this.files[0].name : '未选择任何文件';
+                this.nextElementSibling.textContent = fileName;
+
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                        let input_password = document.getElementById("inputPassword").value;
+                        var fileContent = e.target.result;
+                        var password = new TextEncoder().encode(input_password);
+                        decryptAES(fileContent, password)
+                                .then(decryptedData => {
+                                        const decodedData = new TextDecoder().decode(decryptedData);
+                                        //console.log(decodedData);
+                                        decrypted_game_data = decodedData;
+                                })
+                                .catch(error => {
+                                        console.error(error);
+                                });
+                }
+                ;
+                reader.readAsArrayBuffer(file);
+            });
+
+            document.getElementById('download_decrypt_file_btn').onclick = function () {
+                if(decrypted_game_data=='')
+                    return;
+                let p = window.URL.createObjectURL(new Blob([decrypted_game_data], {
+                        type: "binary/octet-stream"
+                }));
+                let t = document.createElement("a");
+                t.href = p;
+                t.download = "SaveFile.decrypted.txt";
+                t.click();
+                window.URL.revokeObjectURL(p);
+            };
+
+            document.getElementById('encryption-file').addEventListener('change', function() {
+                var file = this.files[0];
+                var fileName = this.files[0] ? this.files[0].name : '未选择任何文件';
+                this.nextElementSibling.textContent = fileName;
+
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                        let input_password = document.getElementById("inputPassword").value;
+                        var fileContent = e.target.result;
+                        var password = new TextEncoder().encode(input_password);
+                        encryptAES(fileContent, password)
+                                .then(encryptedData => {
+                                        encrypted_game_data = encryptedData;
+                                })
+                                .catch(error => {
+                                        console.error(error);
+                                });
+                }
+                ;
+                reader.readAsText(file);
+            });
+            document.getElementById('download_encrypt_file_btn').onclick = function () {
+                if(encrypted_game_data == null)
+                    return;
+                let p = window.URL.createObjectURL(new Blob([encrypted_game_data], {
+                        type: "binary/octet-stream"
+                }));
+                let t = document.createElement("a");
+                t.href = p;
+                t.download = "SaveFile.encrypted.es3";
+                t.click();
+                window.URL.revokeObjectURL(p);
+            };
+
+            async function decryptAES(encryptedData, password) {
+                const iv = encryptedData.slice(0, 16);
+                const ciphertext = encryptedData.slice(16);
+                const keyMaterial = await window.crypto.subtle.importKey('raw', password, {
+                    name: 'PBKDF2'
+                }, false, ['deriveKey']);
+
+                const derivedKey = await window.crypto.subtle.deriveKey({
+                    name: 'PBKDF2',
+                    salt: iv,
+                    iterations: 100,
+                    hash: 'SHA-1'
+                }, keyMaterial, {
+                    name: 'AES-CBC',
+                    length: 128
+                }, false, ['decrypt']);
+
+                const decryptedData = await window.crypto.subtle.decrypt({
+                    name: 'AES-CBC',
+                    iv: iv
+                }, derivedKey, ciphertext);
+
+                return new Uint8Array(decryptedData);
+            }
+
+            async function encryptAES(plainData, password) {
+                const iv = window.crypto.getRandomValues(new Uint8Array(16));
+                const keyMaterial = await window.crypto.subtle.importKey('raw', password, {
+                        name: 'PBKDF2'
+                }, false, ['deriveKey']);
+
+                const derivedKey = await window.crypto.subtle.deriveKey({
+                        name: 'PBKDF2',
+                        salt: iv,
+                        iterations: 100,
+                        hash: 'SHA-1'
+                }, keyMaterial, {
+                        name: 'AES-CBC',
+                        length: 128
+                }, false, ['encrypt']);
+
+                let plainDataBuffer = new TextEncoder().encode(plainData);
+                const encryptedData = await window.crypto.subtle.encrypt({
+                        name: 'AES-CBC',
+                        iv: iv
+                }, derivedKey, plainDataBuffer);
+
+                const encryptedBytes = new Uint8Array(encryptedData);
+                const encryptedResult = new Uint8Array(iv.length + encryptedBytes.length);
+                encryptedResult.set(iv);
+                encryptedResult.set(encryptedBytes, iv.length);
+
+                return encryptedResult;
+            }
+
+            // Open Editor modal
+            var modal = document.getElementById("editor-modal");
+            var btn = document.getElementById("open-editor-btn");
+            var span = document.getElementById("close-modal");
+
+            btn.onclick = function() {
+                modal.style.display = "flex";
+            }
+
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            // Initialize CodeMirror editors
+            var editorLeft = CodeMirror.fromTextArea(document.getElementById('editor-left'), {
+                lineNumbers: true,
+                mode: "htmlmixed",
+                htmlMode: true,
+                readOnly: true
+            });
+
+            var editorRight = CodeMirror.fromTextArea(document.getElementById('editor-right'), {
+                lineNumbers: true,
+                mode: "htmlmixed",
+                htmlMode: true
+            });
+
+            let isSyncingEditor1 = false;
+            let isSyncingEditor2 = false;
+
+            function syncScroll(from, to, isSyncingFrom, isSyncingTo) {
+                if (isSyncingFrom) return;
+                isSyncingTo = true;
+                const { left, top } = from.getScrollInfo();
+                to.scrollTo(left, top);
+                isSyncingTo = false;
+            }
+
+            editorLeft.on('scroll', () => {
+                requestAnimationFrame(() => {
+                    syncScroll(editorLeft, editorRight, isSyncingEditor1, isSyncingEditor2);
+                });
+            });
+
+            editorRight.on('scroll', () => {
+                requestAnimationFrame(() => {
+                    syncScroll(editorRight, editorLeft, isSyncingEditor2, isSyncingEditor1);
+                });
+            });
+
+            // Save button in the editor
+            document.getElementById("cmp-editor-btn").onclick = function() {
+                var editorContentLeft = editorLeft.getValue();
+                var editorContentRight = editorRight.getValue();
+                showDifferences(editorContentLeft, editorContentRight);
+                //modal.style.display = "none";
+            }
+
+            let last_widget;
+            function showDifferences(original, modified) {
+              var dmp = new diff_match_patch();
+              var diff = dmp.diff_main(original, modified);
+              dmp.diff_cleanupSemantic(diff);
+
+              var diffHtml = dmp.diff_prettyHtml(diff);
+              var cleanup_diffHtml = diffHtml.replace(/&para;/g, '');
+              //console.log(diffHtml);
+              //const diff = dmp.diff_main(originalText, modifiedText);
+              //dmp.diff_cleanupSemantic(diff);
+
+              //const diffHtml = diff.map(part => {
+                //  const [operation, text] = part;
+                //  switch (operation) {
+                  //    case DIFF_INSERT:
+                  //      return `<span class="diff-insert">${text}</span>`;
+                  //    case DIFF_DELETE:
+                  //      return `<span class="diff-delete">${text}</span>`;
+                  //    case DIFF_EQUAL:
+                  //      return text;
+                  //  }
+                //}).join('');
+              //var dynamicSpan = document.createElement('span');
+              //dynamicSpan.innerHTML = diffHtml;
+              //let line_count = editorRight.lineCount();
+              //const start = { line: 0, ch: 0 }; // 标记的起始位置
+              //const end = { line: line_count, ch: 0 }; // 标记的结束位置
+              //editorRight.markText(
+                //  start,
+                //  end,
+                //  { replaceWith: dynamicSpan }
+                //);
+              //editorRight.setValue(diffHtml);
+
+              // 创建一个包含差异HTML的widget元素
+              var widget = document.createElement('div');
+              widget.innerHTML = cleanup_diffHtml;
+
+              // 清空编辑器内容
+              editorRight.setValue("");
+              if(last_widget!=null)
+              {
+                last_widget.remove();
+              }
+
+              // 将widget插入到编辑器中的特定位置
+              editorRight.addWidget({ line: 0, ch: 0 }, widget, false);
+              last_widget = widget;
+            }
+
+            btn.onclick = function() {
+                editorRight.setValue('');
+                if(last_widget!=null)
+                {
+                  last_widget.remove();
+                  last_widget=null;
+                }
+                modal.style.display = "flex";
+                editorLeft.setValue(decrypted_game_data);
+                editorRight.setValue(decrypted_game_data);
+            }
+        </script>
+    </body>
+</html>
